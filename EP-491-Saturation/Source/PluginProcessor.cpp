@@ -19,7 +19,7 @@ EP491SaturationAudioProcessor::EP491SaturationAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), apvts(*this, nullptr, "Parameters", createParams())
 #endif
 {
 }
@@ -135,27 +135,14 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
-    }
+    
+    auto& distType = *apvts.getRawParameterValue("DISTTYPE");
+    auto& distGain = *apvts.getRawParameterValue("DISTGAIN");
+    auto& distLevel = *apvts.getRawParameterValue("DISTLEVEL");
+    
+    setDistortionType(distType, buffer, distGain, distLevel, getTotalNumOutputChannels());
 }
 
 //==============================================================================
@@ -188,4 +175,90 @@ void EP491SaturationAudioProcessor::setStateInformation (const void* data, int s
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new EP491SaturationAudioProcessor();
+}
+
+void EP491SaturationAudioProcessor::setDistortionType(const int choice, juce::AudioBuffer<float> &buffer, float gain, float level, int numChannels)
+{
+    switch (choice) {
+        case 0:
+            distortionOff(buffer, gain, level, numChannels);
+            break;
+        
+        case 1:
+            hardClip(buffer, gain, level, numChannels);
+            break;
+            
+        case 2:
+            softClip(buffer, gain, level, numChannels);
+            break;
+            
+        default:
+            jassertfalse;
+            break;
+    }
+}
+
+void EP491SaturationAudioProcessor::hardClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels)
+{
+    float* channelLeft = buffer.getWritePointer(0);
+    float* channelRight = buffer.getWritePointer(1);
+
+    for (int sample = 0; sample < buffer.getNumSamples(); sample++)
+    {
+        channelLeft[sample] *= gain;
+        channelRight[sample] *= gain;
+
+        if (channelLeft[sample] > 1.0f)
+        {
+            channelLeft[sample] = 1.0f;
+        } else if (channelLeft[sample] < -1.0f)
+        {
+            channelLeft[sample] =  -1.0f;
+        }
+
+        if (channelRight[sample] > 1.0f)
+        {
+            channelRight[sample] = 1.0f;
+        } else if (channelRight[sample] < -1.0f)
+        {
+            channelRight[sample] =  -1.0f;
+        }
+
+        channelLeft[sample] *= level;
+        channelRight[sample] *= level;
+    }
+}
+
+void EP491SaturationAudioProcessor::softClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels)
+{
+    for (int channel = 0; channel < numChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] *= juce::Decibels::decibelsToGain(gain);
+            channelData[sample] = (2 / M_PI) * atan(channelData[sample]);
+
+            channelData[sample] *= level;
+        }
+    }
+}
+
+void EP491SaturationAudioProcessor::distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels)
+{
+    
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcessor::createParams()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip" }, 2));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1}, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 25.0f, 0.01f, 0.6f }, 10.0f));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTLEVEL", 1}, "Distortion Level", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f }, 1.0f));
+    
+    return { params.begin(), params.end() };
 }

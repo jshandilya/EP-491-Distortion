@@ -55,8 +55,19 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    juce::AudioProcessorValueTreeState apvts;
+    
+    void setDistortionType(const int choice, juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
+    
+    void hardClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
+    void softClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
+    void distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
 
 private:
+    
+    juce::AudioProcessorValueTreeState::ParameterLayout createParams();
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EP491SaturationAudioProcessor)
 };
