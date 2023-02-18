@@ -260,5 +260,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTLEVEL", 1}, "Distortion Level", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f }, 1.0f));
     
+    // bitcrusher, downsampler
+    
     return { params.begin(), params.end() };
 }
