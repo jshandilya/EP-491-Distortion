@@ -143,9 +143,14 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     auto& distLevel = *apvts.getRawParameterValue("DISTLEVEL");
     auto& N = *apvts.getRawParameterValue("BITCRUSH");
     
-//    setDistortionType(distType, buffer, distGain, distLevel, getTotalNumOutputChannels());
-    
-    bitcrush(buffer, distGain, distLevel, N, getTotalNumOutputChannels());
+    if (distType != 3)
+    {
+        setDistortionType(distType, buffer, distGain, distLevel, getTotalNumOutputChannels());
+    }
+    else
+    {
+        bitcrush(buffer, distGain, distLevel, N, getTotalNumOutputChannels());
+    }
 }
 
 //==============================================================================
@@ -278,7 +283,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip" }, 2));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Bitcrush" }, 0));
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1}, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 25.0f, 0.01f, 0.6f }, 10.0f));
     
