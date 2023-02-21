@@ -62,7 +62,9 @@ public:
     
     void hardClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     void softClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
+    void bitcrush(juce::AudioBuffer<float>& buffer, float gain, float level, int N, int numChannels);
     void distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
+    
 
 private:
     

@@ -141,8 +141,11 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     auto& distType = *apvts.getRawParameterValue("DISTTYPE");
     auto& distGain = *apvts.getRawParameterValue("DISTGAIN");
     auto& distLevel = *apvts.getRawParameterValue("DISTLEVEL");
+    auto& N = *apvts.getRawParameterValue("BITCRUSH");
     
-    setDistortionType(distType, buffer, distGain, distLevel, getTotalNumOutputChannels());
+//    setDistortionType(distType, buffer, distGain, distLevel, getTotalNumOutputChannels());
+    
+    bitcrush(buffer, distGain, distLevel, N, getTotalNumOutputChannels());
 }
 
 //==============================================================================
@@ -245,6 +248,27 @@ void EP491SaturationAudioProcessor::softClip(juce::AudioBuffer<float>& buffer, f
     }
 }
 
+void EP491SaturationAudioProcessor::bitcrush(juce::AudioBuffer<float>& buffer, float gain, float level, int N, int numChannels)
+{
+//    auto N = 4;
+    auto cpt = 0;
+    
+    for (int channel = 0; channel < numChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+        
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] *= juce::Decibels::decibelsToGain(gain);
+            
+            channelData[sample] = (cpt == 0 ? channelData[sample] : 0.f);
+            cpt = (cpt + 1) % N;
+            
+            channelData[sample] *= level;
+        }
+    }
+}
+
 void EP491SaturationAudioProcessor::distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels)
 {
     
@@ -259,6 +283,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1}, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 25.0f, 0.01f, 0.6f }, 10.0f));
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTLEVEL", 1}, "Distortion Level", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f }, 1.0f));
+    
+    params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID { "BITCRUSH", 1}, "Bitcrush", 1, 16, 4));
     
     // bitcrusher, downsampler
     
