@@ -93,8 +93,7 @@ void EP491SaturationAudioProcessor::changeProgramName (int index, const juce::St
 //==============================================================================
 void EP491SaturationAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    
 }
 
 void EP491SaturationAudioProcessor::releaseResources()
@@ -144,11 +143,11 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     auto& N = *apvts.getRawParameterValue ("BITCRUSH");
     auto& freq = *apvts.getRawParameterValue ("FREQ");
     
-    if (distType <= 2)
+    if (distType <= 3)
     {
         setDistortionType (distType, buffer, distGain, distLevel, getTotalNumOutputChannels());
     }
-    else if (distType == 3)
+    else if (distType == 4)
     {
         diode (buffer, freq, distGain, distLevel, getSampleRate(), getTotalNumOutputChannels());
     }
@@ -205,6 +204,10 @@ void EP491SaturationAudioProcessor::setDistortionType(const int choice, juce::Au
             softClip(buffer, gain, level, numChannels);
             break;
             
+        case 3:
+            sine(buffer, gain, level, numChannels);
+            break;
+            
         default:
             jassertfalse;
             break;
@@ -253,6 +256,23 @@ void EP491SaturationAudioProcessor::softClip(juce::AudioBuffer<float>& buffer, f
             channelData[sample] *= juce::Decibels::decibelsToGain(gain);
             channelData[sample] = (2 / M_PI) * atan(channelData[sample]);
 
+            channelData[sample] *= level;
+        }
+    }
+}
+
+void EP491SaturationAudioProcessor::sine(juce::AudioBuffer<float> &buffer, float gain, float level, int numChannels)
+{
+    for (int channel = 0; channel < numChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+        
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] *= juce::Decibels::decibelsToGain(gain);
+            
+            channelData[sample] = std::sin (channelData[sample]);
+            
             channelData[sample] *= level;
         }
     }
@@ -333,7 +353,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Diode", "Bitcrush" }, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Sine", "Diode", "Bitcrush" }, 0));
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1}, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 25.0f, 0.01f, 0.6f }, 10.0f));
     

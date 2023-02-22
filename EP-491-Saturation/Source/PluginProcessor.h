@@ -55,16 +55,20 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    
-    juce::AudioProcessorValueTreeState apvts;
-    
+        
     void setDistortionType(const int choice, juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     
     void hardClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     void softClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
+    void sine(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     void bitcrush(juce::AudioBuffer<float>& buffer, float gain, float level, int N, int numChannels);
     void diode(juce::AudioBuffer<float>& buffer, float freq, float gain, float level, double sampleRate, int numChannels);
     void distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
+    
+    juce::AudioProcessorValueTreeState apvts;
+    
+    juce::dsp::Bias<float> dc;
+
     
 
 private:
