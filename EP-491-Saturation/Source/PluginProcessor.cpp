@@ -403,15 +403,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode", "Bitcrush" }, 0));
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1}, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 10.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1 }, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 10.0f));
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTLEVEL", 1}, "Distortion Level", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f }, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTLEVEL", 1 }, "Distortion Level", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f }, 1.0f));
     
-    params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID { "BITCRUSH", 1}, "Bitcrush", 1, 16, 4));
+    params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID { "BITCRUSH", 1 }, "Bitcrush", 1, 16, 4));
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "FREQ", 1}, "Freq", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.1f, 0.6f }, 200.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "FREQ", 1 }, "Freq", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.1f, 0.6f }, 200.0f));
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DC", 1}, "DC Bias", juce::NormalisableRange<float> { -1.f, 1.f, 0.1f }, 0.f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DC", 1 }, "DC Bias", juce::NormalisableRange<float> { -1.f, 1.f, 0.1f }, 0.f));
     
     // bitcrusher, downsampler
     
