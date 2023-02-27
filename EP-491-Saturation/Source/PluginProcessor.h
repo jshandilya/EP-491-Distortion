@@ -68,7 +68,21 @@ public:
     
     juce::AudioProcessorValueTreeState apvts;
     
-    juce::dsp::Bias<float> dc;
+    // Filter
+    
+    enum class FilterType
+    {
+        LowPass,
+        BandPass,
+        HighPass
+    };
+    
+    void reset() override;
+    void setType(int choice);
+    
+    juce::dsp::StateVariableTPTFilter<float> filter;
+    FilterType filterType { FilterType::LowPass };
+    
 private:
     
     juce::AudioProcessorValueTreeState::ParameterLayout createParams();
