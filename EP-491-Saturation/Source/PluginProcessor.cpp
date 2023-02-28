@@ -145,30 +145,76 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
+    auto& input = *apvts.getRawParameterValue ("INPUT");
+    auto& output = *apvts.getRawParameterValue ("OUTPUT");
+    
     auto& distType = *apvts.getRawParameterValue ("DISTTYPE");
     auto& distGain = *apvts.getRawParameterValue ("DISTGAIN");
     auto& distLevel = *apvts.getRawParameterValue ("DISTLEVEL");
-    auto& N = *apvts.getRawParameterValue ("BITCRUSH");
     auto& freq = *apvts.getRawParameterValue ("DIODEFREQ");
+    auto& N = *apvts.getRawParameterValue ("BITCRUSH");
     
+    auto& distType2 = *apvts.getRawParameterValue ("DISTTYPE2");
+    auto& distGain2 = *apvts.getRawParameterValue ("DISTGAIN2");
+    auto& distLevel2 = *apvts.getRawParameterValue ("DISTLEVEL2");
+    auto& freq2 = *apvts.getRawParameterValue ("DIODEFREQ2");
+    auto& N2 = *apvts.getRawParameterValue ("BITCRUSH2");
+
     auto& filterTypeProcess = *apvts.getRawParameterValue("FILTERTYPE");
     auto& cutoff = *apvts.getRawParameterValue("FILTERFREQ");
     auto& res = *apvts.getRawParameterValue("FILTERRES");
     
-    if (distType <= 4)
+    for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
-        setDistortionType (distType, buffer, distGain, distLevel, getTotalNumOutputChannels());
+        auto* channelData = buffer.getWritePointer (channel);
+        
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] *= input;
+        }
     }
-    else if (distType == 5)
+    
+    setDistortionType (distType, buffer, distGain, distLevel, 200.f, N, getSampleRate(), totalNumOutputChannels);
+    setDistortionType (distType2, buffer, distGain2, distLevel2, 200.f, N2, getSampleRate(), totalNumOutputChannels);
+    
+    for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
-        diode (buffer, freq, distGain, distLevel, getSampleRate(), getTotalNumOutputChannels());
-    }
-    else
-    {
-        bitcrush (buffer, distGain, distLevel, N, getTotalNumOutputChannels());
+        auto* channelData = buffer.getWritePointer (channel);
+        
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] *= output;
+        }
     }
     
     
+//    if (distType <= 4)
+//    {
+//        setDistortionType (distType, buffer, distGain, distLevel, totalNumOutputChannels);
+//    }
+//    else if (distType == 5)
+//    {
+//        diode (buffer, freq, distGain, distLevel, getSampleRate(), totalNumOutputChannels);
+//    }
+//    else
+//    {
+//        bitcrush (buffer, distGain, distLevel, N, totalNumOutputChannels);
+//    }
+//
+//    if (distType2 <= 4)
+//    {
+//        setDistortionType (distType2, buffer, distGain2, distLevel2, totalNumOutputChannels);
+//    }
+//
+//    else if (distType2 == 5)
+//    {
+//        diode (buffer, freq2, distGain2, distLevel2, getSampleRate(), totalNumOutputChannels);
+//    }
+//    else
+//    {
+//        bitcrush (buffer, distGain2, distLevel2, N2, totalNumOutputChannels);
+//    }
+//
     setType (filterTypeProcess);
     filter.setCutoffFrequency (cutoff);
     filter.setResonance (res);
@@ -211,7 +257,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new EP491SaturationAudioProcessor();
 }
 
-void EP491SaturationAudioProcessor::setDistortionType(const int choice, juce::AudioBuffer<float> &buffer, float gain, float level, int numChannels)
+void EP491SaturationAudioProcessor::setDistortionType(const int choice, juce::AudioBuffer<float> &buffer, float gain, float level, float freq, int N, double sampleRate, int numChannels)
 {
     switch (choice) {
         case 0:
@@ -232,6 +278,14 @@ void EP491SaturationAudioProcessor::setDistortionType(const int choice, juce::Au
             
         case 4:
             sine(buffer, gain, level, numChannels);
+            break;
+        
+        case 5:
+            diode (buffer, freq, gain, level, sampleRate, numChannels);
+            break;
+            
+        case 6:
+            bitcrush (buffer, gain, level, N, numChannels);
             break;
             
         default:
@@ -397,7 +451,16 @@ void EP491SaturationAudioProcessor::diode(juce::AudioBuffer<float>& buffer, floa
 
 void EP491SaturationAudioProcessor::distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels)
 {
-    
+//    for (int channel = 0; channel < numChannels; ++channel)
+//    {
+//        auto* channelData = buffer.getWritePointer (channel);
+//
+//        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+//        {
+//            channelData[sample] *= juce::Decibels::decibelsToGain(gain);
+//            channelData[sample] *= level;
+//        }
+//    }
 }
 
 void EP491SaturationAudioProcessor::reset()
@@ -431,16 +494,32 @@ void EP491SaturationAudioProcessor::setType(int choice)
 juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcessor::createParams()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "INPUT", 1 }, "Input", juce::NormalisableRange<float> { 0.01f, 1.0f, 0.01f}, 1.0f));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "OUTPUT", 1 }, "Output", juce::NormalisableRange<float> { 0.01f, 1.0f, 0.01f}, 1.0f));
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode", "Bitcrush" }, 0));
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1 }, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 10.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1 }, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 1.0f));
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTLEVEL", 1 }, "Distortion Level", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f }, 1.0f));
     
     params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID { "BITCRUSH", 1 }, "Bitcrush", 1, 16, 4));
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DIODEFREQ", 1 }, "Diode Freq", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.1f, 0.6f }, 200.0f));
+    
+    
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE2", 1 }, "Distortion Type 2", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode", "Bitcrush" }, 0));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN2", 1 }, "Distortion Gain 2", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 1.0f));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTLEVEL2", 1 }, "Distortion Level 2", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f }, 1.0f));
+    
+    params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID { "BITCRUSH2", 1 }, "Bitcrush 2", 1, 16, 4));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DIODEFREQ2", 1 }, "Diode Freq 2", juce::NormalisableRange<float> { 20.0f, 20000.0f, 0.1f, 0.6f }, 200.0f));
+
     
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "FILTERTYPE", 1 }, "Filter Type", juce::StringArray { "Lowpass", "Bandpass", "Highpass" }, 0));
     

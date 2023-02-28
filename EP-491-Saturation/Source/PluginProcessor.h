@@ -56,7 +56,7 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
         
-    void setDistortionType(const int choice, juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
+    void setDistortionType(const int choice, juce::AudioBuffer<float> &buffer, float gain, float level, float freq, int N, double sampleRate, int numChannels);
     
     void hardClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     void softClip(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
