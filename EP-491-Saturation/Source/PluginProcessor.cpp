@@ -152,13 +152,11 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     auto& distGain = *apvts.getRawParameterValue ("DISTGAIN");
     auto& distLevel = *apvts.getRawParameterValue ("DISTLEVEL");
 //    auto& freq = *apvts.getRawParameterValue ("DIODEFREQ");
-    auto& N = *apvts.getRawParameterValue ("BITCRUSH");
     
     auto& distType2 = *apvts.getRawParameterValue ("DISTTYPE2");
     auto& distGain2 = *apvts.getRawParameterValue ("DISTGAIN2");
     auto& distLevel2 = *apvts.getRawParameterValue ("DISTLEVEL2");
 //    auto& freq2 = *apvts.getRawParameterValue ("DIODEFREQ2");
-    auto& N2 = *apvts.getRawParameterValue ("BITCRUSH2");
 
     auto& filterTypeProcess = *apvts.getRawParameterValue("FILTERTYPE");
     auto& cutoff = *apvts.getRawParameterValue("FILTERFREQ");
@@ -174,8 +172,8 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         }
     }
     
-    setDistortionType (distType, buffer, distGain, distLevel, 200.f, N, getSampleRate(), totalNumOutputChannels);
-    setDistortionType (distType2, buffer, distGain2, distLevel2, 200.f, N2, getSampleRate(), totalNumOutputChannels);
+    setDistortionType (distType, buffer, distGain, distLevel, 200.f, getSampleRate(), totalNumOutputChannels);
+    setDistortionType (distType2, buffer, distGain2, distLevel2, 200.f, getSampleRate(), totalNumOutputChannels);
     
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
@@ -229,7 +227,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new EP491SaturationAudioProcessor();
 }
 
-void EP491SaturationAudioProcessor::setDistortionType(const int choice, juce::AudioBuffer<float> &buffer, float gain, float level, float freq, int N, double sampleRate, int numChannels)
+void EP491SaturationAudioProcessor::setDistortionType(const int choice, juce::AudioBuffer<float> &buffer, float gain, float level, float freq, double sampleRate, int numChannels)
 {
     switch (choice) {
         case 0:
