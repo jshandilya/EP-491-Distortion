@@ -42,11 +42,6 @@ void EP491SaturationAudioProcessorEditor::paint (juce::Graphics& g)
 
 void EP491SaturationAudioProcessorEditor::resized()
 {
-    const auto padding = 40;
-    
-    const auto startX = 10;
-    const auto startY = 55;
-    
     const auto boxWidth = 90;
     const auto boxHeight = 30;
     
