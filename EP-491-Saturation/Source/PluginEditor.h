@@ -57,6 +57,10 @@ private:
     std::unique_ptr<SliderAttachment> cutoffAttachment, resAttachment;
     juce::Label cutoffLabel { "Filter Cutoff", "Cutoff" }, resLabel { "Filter Resonance", "Res" };
     
+    juce::ComboBox filterPosBox;
+    std::unique_ptr<BoxAttachment> filterPosAttachment;
+    juce::Label filterPosLabel { "Filter Position", "Filter Position" };
+    
     
     void setComboBoxes();
 

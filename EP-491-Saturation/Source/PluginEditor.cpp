@@ -83,6 +83,9 @@ void EP491SaturationAudioProcessorEditor::resized()
     filterTypeBox.setBounds (400, 40, boxWidth, boxHeight);
     filterTypeLabel.setBounds (filterTypeBox.getX(), filterTypeBox.getY() - labelYOffset - 10, boxWidth, boxHeight);
     
+    filterPosBox.setBounds (filterTypeBox.getX() + boxWidth + 10, 40, boxWidth, boxHeight);
+    filterPosLabel.setBounds (filterPosBox.getX(), filterPosBox.getY() - labelYOffset - 10, boxWidth, boxHeight);
+    
     cutoffSlider.setBounds (400, 110, sliderWidth, sliderHeight);
     cutoffLabel.setBounds (cutoffSlider.getX(), cutoffSlider.getY() - labelYOffset, cutoffSlider.getWidth(), labelHeight);
     
@@ -124,6 +127,17 @@ void EP491SaturationAudioProcessorEditor::setComboBoxes()
     filterTypeLabel.setFont (15.0f);
     filterTypeLabel.setJustificationType (juce::Justification::left);
     addAndMakeVisible (filterTypeLabel);
+    
+    juce::StringArray filterPosChoices { "Pre", "Middle", "Post" };
+    filterPosBox.addItemList (filterPosChoices, 1);
+    addAndMakeVisible (filterPosBox);
+    
+    filterPosAttachment = std::make_unique<BoxAttachment>(audioProcessor.apvts, "FILTERPOS", filterPosBox);
+    
+    filterPosLabel.setColour (juce::Label::ColourIds::textColourId, juce::Colours::white);
+    filterPosLabel.setFont (15.0f);
+    filterPosLabel.setJustificationType (juce::Justification::left);
+    addAndMakeVisible (filterPosLabel);
 }
 
 void EP491SaturationAudioProcessorEditor::setSliderWithLabel (juce::Slider& slider, juce::Label& label, juce::AudioProcessorValueTreeState& apvts, juce::String paramID, std::unique_ptr<SliderAttachment>& attachment)
