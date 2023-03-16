@@ -175,14 +175,7 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     
     if (filterPos == 0)
     {
-        setType (filterTypeProcess);
-        filter.setCutoffFrequency (cutoff);
-        filter.setResonance (res);
-        
-        auto audioBlock = juce::dsp::AudioBlock<float> (buffer);
-        auto context = juce::dsp::ProcessContextReplacing<float> (audioBlock);
-        
-        filter.process (context);
+        setFilter (buffer, cutoff, res, filterTypeProcess);
         
         setDistortionType (distType, buffer, distGain, distLevel, 200.f, getSampleRate(), totalNumOutputChannels);
         setDistortionType (distType2, buffer, distGain2, distLevel2, 200.f, getSampleRate(), totalNumOutputChannels);
@@ -192,14 +185,7 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     {
         setDistortionType (distType, buffer, distGain, distLevel, 200.f, getSampleRate(), totalNumOutputChannels);
 
-        setType (filterTypeProcess);
-        filter.setCutoffFrequency (cutoff);
-        filter.setResonance (res);
-        
-        auto audioBlock = juce::dsp::AudioBlock<float> (buffer);
-        auto context = juce::dsp::ProcessContextReplacing<float> (audioBlock);
-        
-        filter.process (context);
+        setFilter (buffer, cutoff, res, filterTypeProcess);
         
         setDistortionType (distType2, buffer, distGain2, distLevel2, 200.f, getSampleRate(), totalNumOutputChannels);
     }
@@ -209,14 +195,7 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         setDistortionType (distType, buffer, distGain, distLevel, 200.f, getSampleRate(), totalNumOutputChannels);
         setDistortionType (distType2, buffer, distGain2, distLevel2, 200.f, getSampleRate(), totalNumOutputChannels);
         
-        setType (filterTypeProcess);
-        filter.setCutoffFrequency (cutoff);
-        filter.setResonance (res);
-        
-        auto audioBlock = juce::dsp::AudioBlock<float> (buffer);
-        auto context = juce::dsp::ProcessContextReplacing<float> (audioBlock);
-        
-        filter.process (context);
+        setFilter (buffer, cutoff, res, filterTypeProcess);
     }
     
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
@@ -494,6 +473,18 @@ void EP491SaturationAudioProcessor::setType(int choice)
         default:
             break;
     }
+}
+
+void EP491SaturationAudioProcessor::setFilter(juce::AudioBuffer<float> &buffer, float cutoff, float res, int filterType)
+{
+    setType (filterType);
+    filter.setCutoffFrequency (cutoff);
+    filter.setResonance (res);
+    
+    auto audioBlock = juce::dsp::AudioBlock<float> (buffer);
+    auto context = juce::dsp::ProcessContextReplacing<float> (audioBlock);
+    
+    filter.process (context);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcessor::createParams()
