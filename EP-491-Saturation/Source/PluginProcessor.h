@@ -63,6 +63,7 @@ public:
     void fuzz(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     void sine(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     void diode(juce::AudioBuffer<float>& buffer, float freq, float gain, float level, double sampleRate, int numChannels);
+    void tanh(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     void distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     
     void setFilter(juce::AudioBuffer<float> &buffer, float cutoff, float res, int filterType);

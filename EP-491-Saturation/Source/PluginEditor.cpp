@@ -93,7 +93,7 @@ using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
 void EP491SaturationAudioProcessorEditor::setComboBoxes()
 {
-    juce::StringArray distChoices { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode" };
+    juce::StringArray distChoices { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode", "Tanh" };
     distType1Box.addItemList (distChoices, 1);
     addAndMakeVisible (distType1Box);
     distType2Box.addItemList (distChoices, 1);

@@ -263,8 +263,11 @@ void EP491SaturationAudioProcessor::setDistortionType(const int choice, juce::Au
             break;
         
         case 5:
-            diode (buffer, freq, gain, level, sampleRate, numChannels);
+            diode(buffer, freq, gain, level, sampleRate, numChannels);
             break;
+            
+        case 6:
+            tanh(buffer, gain, level, numChannels);
             
         default:
             jassertfalse;
@@ -402,6 +405,24 @@ void EP491SaturationAudioProcessor::diode(juce::AudioBuffer<float>& buffer, floa
     }
 }
 
+void EP491SaturationAudioProcessor::tanh(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels)
+{
+    for (int channel = 0; channel < numChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+        
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            channelData[sample] *= juce::Decibels::decibelsToGain(gain);
+            
+            channelData[sample] = std::tanh(channelData[sample]);
+            
+            channelData[sample] *= level;
+        }
+    }
+}
+
+
 void EP491SaturationAudioProcessor::distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels)
 {
 
@@ -458,7 +479,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
 
     
     // Layer 1 params
-    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode" }, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode", "Tanh" }, 0));
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1 }, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 1.0f));
     
@@ -466,7 +487,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
     
     
     // Layer 2 params
-    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE2", 1 }, "Distortion Type 2", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode" }, 0));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE2", 1 }, "Distortion Type 2", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode", "Tanh" }, 0));
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN2", 1 }, "Distortion Gain 2", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 1.0f));
     
