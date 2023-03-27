@@ -161,6 +161,8 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     auto& res = *apvts.getRawParameterValue("FILTERRES");
     auto& filterPos = *apvts.getRawParameterValue("FILTERPOS");
     
+    float diodeFreq = 200.f;
+    
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
@@ -175,23 +177,23 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     {
         setFilter (buffer, cutoff, res, filterTypeProcess);
         
-        setDistortionType (distType, buffer, distGain, distLevel, 200.f, getSampleRate(), totalNumOutputChannels);
-        setDistortionType (distType2, buffer, distGain2, distLevel2, 200.f, getSampleRate(), totalNumOutputChannels);
+        setDistortionType (distType, buffer, distGain, distLevel, diodeFreq, getSampleRate(), totalNumOutputChannels);
+        setDistortionType (distType2, buffer, distGain2, distLevel2, diodeFreq, getSampleRate(), totalNumOutputChannels);
     }
     
     else if (filterPos == 1)
     {
-        setDistortionType (distType, buffer, distGain, distLevel, 200.f, getSampleRate(), totalNumOutputChannels);
+        setDistortionType (distType, buffer, distGain, distLevel, diodeFreq, getSampleRate(), totalNumOutputChannels);
 
         setFilter (buffer, cutoff, res, filterTypeProcess);
         
-        setDistortionType (distType2, buffer, distGain2, distLevel2, 200.f, getSampleRate(), totalNumOutputChannels);
+        setDistortionType (distType2, buffer, distGain2, distLevel2, diodeFreq, getSampleRate(), totalNumOutputChannels);
     }
     
     else
     {
-        setDistortionType (distType, buffer, distGain, distLevel, 200.f, getSampleRate(), totalNumOutputChannels);
-        setDistortionType (distType2, buffer, distGain2, distLevel2, 200.f, getSampleRate(), totalNumOutputChannels);
+        setDistortionType (distType, buffer, distGain, distLevel, diodeFreq, getSampleRate(), totalNumOutputChannels);
+        setDistortionType (distType2, buffer, distGain2, distLevel2, diodeFreq, getSampleRate(), totalNumOutputChannels);
         
         setFilter (buffer, cutoff, res, filterTypeProcess);
     }
