@@ -16,3 +16,5 @@ Project for Advanced Projects in Electronic Production and Design (EP-491) at Be
 * Input and output parameters
 * SVF filter with cutoff and resonance parameters
 * Adjustable filter position 
+
+
