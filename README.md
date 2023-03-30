@@ -14,6 +14,8 @@ Project for Advanced Projects in Electronic Production and Design (EP-491) at Be
 * 6 algorithm options including Soft Clip, Hard Clip, Diode and Sine Waveshaper
 * Gain and level parameters
 * Input and output parameters
+* IIR peak filter to boost low end
+* Adjustable cutoff and gain
 * SVF filter with cutoff and resonance parameters
 * Adjustable filter position 
 
