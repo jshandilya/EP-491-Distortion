@@ -100,6 +100,7 @@ void EP491SaturationAudioProcessor::prepareToPlay (double sampleRate, int sample
     spec.numChannels = getTotalNumOutputChannels();
 
     filter.prepare (spec);
+    iirFilter.prepare (spec);
     
     reset();
 }
@@ -161,6 +162,8 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     auto& res = *apvts.getRawParameterValue("FILTERRES");
     auto& filterPos = *apvts.getRawParameterValue("FILTERPOS");
     
+    auto& boomGain = *apvts.getRawParameterValue("BOOM");
+    
     float diodeFreq = 200.f;
     
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
@@ -197,6 +200,8 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         
         setFilter (buffer, cutoff, res, filterTypeProcess);
     }
+    
+    boom (buffer, boomGain, getSampleRate(), totalNumOutputChannels);
     
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
@@ -433,6 +438,7 @@ void EP491SaturationAudioProcessor::distortionOff(juce::AudioBuffer<float>& buff
 void EP491SaturationAudioProcessor::reset()
 {
     filter.reset();
+    iirFilter.reset();
 }
 
 void EP491SaturationAudioProcessor::setType(int choice)
@@ -470,6 +476,19 @@ void EP491SaturationAudioProcessor::setFilter(juce::AudioBuffer<float> &buffer, 
     filter.process (context);
 }
 
+void EP491SaturationAudioProcessor::boom(juce::AudioBuffer<float>& buffer, float gain, double sampleRate, int numChannels)
+{
+    float boomFreq = 150.f;
+    
+    *iirFilter.state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, boomFreq, 0.6f, gain);
+    
+    auto audioBlock = juce::dsp::AudioBlock<float> (buffer);
+    auto context = juce::dsp::ProcessContextReplacing<float> (audioBlock);
+    
+    iirFilter.process (context);
+}
+
+
 juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcessor::createParams()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
@@ -504,7 +523,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "FILTERRES", 1}, "Filter Resonance", juce::NormalisableRange<float> { 1.0f, 10.0f, 0.01f}, 1.0f));
     
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "FILTERPOS", 1 }, "Filter Position", juce::StringArray { "Pre", "Middle", "Post" }, 0));
-
+    
+    // Boom params
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "BOOM", 1 }, "Boom", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 1.0f));
     
     return { params.begin(), params.end() };
 }

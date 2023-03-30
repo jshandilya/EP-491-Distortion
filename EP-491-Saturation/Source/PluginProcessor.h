@@ -67,10 +67,11 @@ public:
     void distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     
     void setFilter(juce::AudioBuffer<float> &buffer, float cutoff, float res, int filterType);
+    void boom(juce::AudioBuffer<float>& buffer, float gain, double sampleRate, int numChannels);
     
     juce::AudioProcessorValueTreeState apvts;
     
-    // Filter
+    // SVF Filter
     
     enum class FilterType
     {
@@ -84,6 +85,10 @@ public:
     
     juce::dsp::StateVariableTPTFilter<float> filter;
     FilterType filterType { FilterType::LowPass };
+    
+    // IIR Filter
+    
+    juce::dsp::ProcessorDuplicator <juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients <float>> iirFilter;
     
 private:
     
