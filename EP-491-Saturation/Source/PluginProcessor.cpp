@@ -162,7 +162,9 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     auto& res = *apvts.getRawParameterValue("FILTERRES");
     auto& filterPos = *apvts.getRawParameterValue("FILTERPOS");
     
+    auto& boomType = *apvts.getRawParameterValue("BOOMTYPE");
     auto& boomGain = *apvts.getRawParameterValue("BOOM");
+    auto& boomFreq = *apvts.getRawParameterValue("BOOMFREQ");
     
     float diodeFreq = 200.f;
     
@@ -201,7 +203,10 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         setFilter (buffer, cutoff, res, filterTypeProcess);
     }
     
-    boom (buffer, boomGain, getSampleRate(), totalNumOutputChannels);
+    if (boomType == 1 )
+    {
+        boom (buffer, boomGain, boomFreq, getSampleRate(), totalNumOutputChannels);
+    }
     
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
@@ -275,6 +280,7 @@ void EP491SaturationAudioProcessor::setDistortionType(const int choice, juce::Au
             
         case 6:
             tanh(buffer, gain, level, numChannels);
+            break;
             
         default:
             jassertfalse;
@@ -476,11 +482,11 @@ void EP491SaturationAudioProcessor::setFilter(juce::AudioBuffer<float> &buffer, 
     filter.process (context);
 }
 
-void EP491SaturationAudioProcessor::boom(juce::AudioBuffer<float>& buffer, float gain, double sampleRate, int numChannels)
+void EP491SaturationAudioProcessor::boom(juce::AudioBuffer<float>& buffer, float gain, float freq, double sampleRate, int numChannels)
 {
-    float boomFreq = 150.f;
+    float q = 0.8f;
     
-    *iirFilter.state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, boomFreq, 0.6f, gain);
+    *iirFilter.state = *juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, freq, q, gain);
     
     auto audioBlock = juce::dsp::AudioBlock<float> (buffer);
     auto context = juce::dsp::ProcessContextReplacing<float> (audioBlock);
@@ -524,8 +530,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
     
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "FILTERPOS", 1 }, "Filter Position", juce::StringArray { "Pre", "Middle", "Post" }, 0));
     
+    
     // Boom params
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "BOOM", 1 }, "Boom", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "BOOMTYPE", 1 }, "Boom Type", juce::StringArray { "Off", "On" }, 0));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "BOOM", 1 }, "Boom", juce::NormalisableRange<float> { 1.f, 50.0f, 0.01f, 0.6f }, 1.0f));
+    
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "BOOMFREQ", 1}, "Boom Freq", juce::NormalisableRange<float> { 20.0f, 200.f, 0.1f, 0.6f }, 200.f));
+
     
     return { params.begin(), params.end() };
 }

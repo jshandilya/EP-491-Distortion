@@ -67,7 +67,7 @@ public:
     void distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels);
     
     void setFilter(juce::AudioBuffer<float> &buffer, float cutoff, float res, int filterType);
-    void boom(juce::AudioBuffer<float>& buffer, float gain, double sampleRate, int numChannels);
+    void boom(juce::AudioBuffer<float>& buffer, float gain, float freq, double sampleRate, int numChannels);
     
     juce::AudioProcessorValueTreeState apvts;
     

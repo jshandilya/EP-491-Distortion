@@ -36,7 +36,7 @@ private:
     // Distortion Type
     juce::ComboBox distType1Box, distType2Box;
     std::unique_ptr<BoxAttachment> distType1Attachment, distType2Attachment;
-    juce::Label distType1Label { "Distortion Tyoe 1", "Type 1"}, distType2Label { "Distortion Tyoe 2", "Type 2"};
+    juce::Label distType1Label { "Distortion Tyoe 1", "Distortion 1"}, distType2Label { "Distortion Tyoe 2", "Distortion 2"};
     
     // Gain
     juce::Slider gain1Slider, gain2Slider;
@@ -61,10 +61,19 @@ private:
     std::unique_ptr<BoxAttachment> filterPosAttachment;
     juce::Label filterPosLabel { "Filter Position", "Filter Position" };
     
+    // Boom
+    juce::ComboBox boomBox;
+    std::unique_ptr<BoxAttachment> boomBoxAttachment;
+    juce::Label boomBoxLabel { "Boom", "Boost" };
+    
+    juce::Slider boomSlider, boomFreqSlider;
+    std::unique_ptr<SliderAttachment> boomAttachment, boomFreqAttachment;
+    juce::Label boomLabel { "Boom Gain", "Gain" }, boomFreqLabel { "Boom Freq", "Freq" };
     
     void setComboBoxes();
-
     void setSliderWithLabel (juce::Slider& slider, juce::Label& label, juce::AudioProcessorValueTreeState& apvts, juce::String paramID, std::unique_ptr<SliderAttachment>& attachment);
+    void setMixSliderWithLabel (juce::Slider& slider, juce::Label& label, juce::AudioProcessorValueTreeState& apvts, juce::String paramID, std::unique_ptr<SliderAttachment>& attachment);
+
     
     
     EP491SaturationAudioProcessor& audioProcessor;
