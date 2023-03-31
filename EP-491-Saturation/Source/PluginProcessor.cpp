@@ -205,7 +205,7 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     
     if (boomType == 1 )
     {
-        boom (buffer, boomGain, boomFreq, getSampleRate(), totalNumOutputChannels);
+        boost (buffer, boomGain, boomFreq, getSampleRate(), totalNumOutputChannels);
     }
     
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
@@ -438,7 +438,6 @@ void EP491SaturationAudioProcessor::tanh(juce::AudioBuffer<float>& buffer, float
     }
 }
 
-
 void EP491SaturationAudioProcessor::distortionOff(juce::AudioBuffer<float>& buffer, float gain, float level, int numChannels)
 {
 
@@ -485,7 +484,7 @@ void EP491SaturationAudioProcessor::setFilter(juce::AudioBuffer<float> &buffer, 
     filter.process (context);
 }
 
-void EP491SaturationAudioProcessor::boom(juce::AudioBuffer<float>& buffer, float gain, float freq, double sampleRate, int numChannels)
+void EP491SaturationAudioProcessor::boost(juce::AudioBuffer<float>& buffer, float gain, float freq, double sampleRate, int numChannels)
 {
     float q = 0.8f;
     
