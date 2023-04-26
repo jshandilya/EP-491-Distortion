@@ -145,7 +145,7 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-    
+        
     auto& input = *apvts.getRawParameterValue ("INPUT");
     auto& output = *apvts.getRawParameterValue ("OUTPUT");
     
@@ -168,13 +168,25 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     
     float diodeFreq = 200.f;
     
+    auto inputGain = juce::Decibels::decibelsToGain (input.load());
+    auto outputGain = juce::Decibels::decibelsToGain (output.load());
+    
+//    float inputGainSmooth = inputGain;
+//
+//    inputGainSmooth = inputGainSmooth - 0.4 * (inputGainSmooth - inputGain);
+//
+//    float outputGainSmooth = outputGain;
+//
+//    outputGainSmooth = outputGainSmooth - 0.4 * (outputGainSmooth - outputGain);
+
+    
     for (int channel = 0; channel < totalNumOutputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
         
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            channelData[sample] *= input;
+            channelData[sample] *= inputGain;
         }
     }
     
@@ -214,7 +226,7 @@ void EP491SaturationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
         
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            channelData[sample] *= output;
+            channelData[sample] *= outputGain;
         }
     }
 }
@@ -502,15 +514,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     
     // Mix params
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "INPUT", 1 }, "Input", juce::NormalisableRange<float> { 0.01f, 1.0f, 0.01f}, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "INPUT", 1 }, "Input", juce::NormalisableRange<float> { -20.f, 20.0f, 0.01f}, 0.0f));
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "OUTPUT", 1 }, "Output", juce::NormalisableRange<float> { 0.01f, 1.0f, 0.01f}, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "OUTPUT", 1 }, "Output", juce::NormalisableRange<float> { -20.f, 20.0f, 0.01f}, 0.0f));
 
     
     // Layer 1 params
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE", 1 }, "Distortion Type", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode", "Tanh" }, 0));
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1 }, "Distortion Gain", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN", 1 }, "Distortion Gain", juce::NormalisableRange<float> { 1.f, 50.0f, 0.01f, 0.6f }, 1.0f));
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTLEVEL", 1 }, "Distortion Level", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f }, 1.0f));
     
@@ -518,7 +530,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout EP491SaturationAudioProcesso
     // Layer 2 params
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID { "DISTTYPE2", 1 }, "Distortion Type 2", juce::StringArray { "Off", "Hard Clip", "Soft Clip", "Fuzz", "Sine", "Diode", "Tanh" }, 0));
     
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN2", 1 }, "Distortion Gain 2", juce::NormalisableRange<float> { 0.01f, 50.0f, 0.01f, 0.6f }, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTGAIN2", 1 }, "Distortion Gain 2", juce::NormalisableRange<float> { 1.f, 50.0f, 0.01f, 0.6f }, 1.0f));
     
     params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID { "DISTLEVEL2", 1 }, "Distortion Level 2", juce::NormalisableRange<float> { 0.1f, 1.0f, 0.01f }, 1.0f));
     

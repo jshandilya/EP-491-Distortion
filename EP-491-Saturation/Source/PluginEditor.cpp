@@ -24,11 +24,11 @@ EP491SaturationAudioProcessorEditor::EP491SaturationAudioProcessorEditor (EP491S
     setSliderWithLabel (level1Slider, level1Label, audioProcessor.apvts, "DISTLEVEL", level1Attachment);
     setSliderWithLabel (level2Slider, level2Label, audioProcessor.apvts, "DISTLEVEL2", level2Attachment);
     
-    setSliderWithLabel (cutoffSlider, cutoffLabel, audioProcessor.apvts, "FILTERFREQ", cutoffAttachment);
+    setFreqSliderWithLabel (cutoffSlider, cutoffLabel, audioProcessor.apvts, "FILTERFREQ", cutoffAttachment);
     setSliderWithLabel (resSlider, resLabel, audioProcessor.apvts, "FILTERRES", resAttachment);
     
     setSliderWithLabel (boomSlider, boomLabel, audioProcessor.apvts, "BOOM", boomAttachment);
-    setSliderWithLabel (boomFreqSlider, boomFreqLabel, audioProcessor.apvts, "BOOMFREQ", boomFreqAttachment);
+    setFreqSliderWithLabel (boomFreqSlider, boomFreqLabel, audioProcessor.apvts, "BOOMFREQ", boomFreqAttachment);
     
     setSize (650, 500);
 }
@@ -183,7 +183,7 @@ void EP491SaturationAudioProcessorEditor::setSliderWithLabel (juce::Slider& slid
 void EP491SaturationAudioProcessorEditor::setMixSliderWithLabel (juce::Slider& slider, juce::Label& label, juce::AudioProcessorValueTreeState& apvts, juce::String paramID, std::unique_ptr<SliderAttachment>& attachment)
 {
     slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
-    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 25);
+    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 75, 25);
     addAndMakeVisible(slider);
     
     attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, paramID, slider);
@@ -191,5 +191,25 @@ void EP491SaturationAudioProcessorEditor::setMixSliderWithLabel (juce::Slider& s
     label.setColour(juce::Label::ColourIds::textColourId, juce::Colours::white);
     label.setFont(15.0f);
     label.setJustificationType(juce::Justification::centred);
+    
+    slider.setTextValueSuffix (" dB");
+    
+    addAndMakeVisible(label);
+}
+
+void EP491SaturationAudioProcessorEditor::setFreqSliderWithLabel (juce::Slider& slider, juce::Label& label, juce::AudioProcessorValueTreeState& apvts, juce::String paramID, std::unique_ptr<SliderAttachment>& attachment)
+{
+    slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 75, 25);
+    addAndMakeVisible(slider);
+    
+    attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, paramID, slider);
+    
+    label.setColour(juce::Label::ColourIds::textColourId, juce::Colours::white);
+    label.setFont(15.0f);
+    label.setJustificationType(juce::Justification::centred);
+    
+    slider.setTextValueSuffix (" Hz");
+    
     addAndMakeVisible(label);
 }
