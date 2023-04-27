@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="JU9qTI" name="EP-491-Saturation" projectType="audioplug"
+<JUCERPROJECT id="JU9qTI" name="EP-491-Distortion" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
               jucerFormatVersion="1">
-  <MAINGROUP id="a8A7Zp" name="EP-491-Saturation">
+  <MAINGROUP id="a8A7Zp" name="EP-491-Distortion">
     <GROUP id="{ED9389D5-1ED2-17FE-A707-2739F4F2095B}" name="Source">
       <FILE id="AeUrNv" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
