@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="JU9qTI" name="EP-491-Distortion" projectType="audioplug"
-              useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1">
-  <MAINGROUP id="a8A7Zp" name="EP-491-Distortion">
+<JUCERPROJECT id="JU9qTI" name="Khaos Distortion" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              pluginManufacturer="JS Audio">
+  <MAINGROUP id="a8A7Zp" name="Khaos Distortion">
     <GROUP id="{ED9389D5-1ED2-17FE-A707-2739F4F2095B}" name="Source">
       <FILE id="AeUrNv" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
