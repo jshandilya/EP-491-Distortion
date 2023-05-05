@@ -1,6 +1,6 @@
 # EP-491-Distortion
 
-![](Images/Distortion.png)
+![](Images/Khaos.png)
 
 ## Project Description 
 
